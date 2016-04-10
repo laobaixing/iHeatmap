@@ -1,15 +1,10 @@
 import os
 import wx
 import sys
-# import wx.lib.filebrowsebutton as filebrowse
 
 import numpy
-import statsmodels.stats.multitest as multitest
 import pandas as pd
-#from rpy2.ipython.ggplot import grdevices
 
-# sys.path.append("C:/Users/sling/iCloudDrive/iHeatmap")  is not needed to build the package
-from scipy import stats
 from iFun import *
 from iHeatmapTable import *
 from iHeatmapDialog import *
