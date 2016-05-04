@@ -1,10 +1,14 @@
 import os
 import wx
 import sys
+# import wx.lib.filebrowsebutton as filebrowse
 
 import numpy
+import statsmodels.stats.multitest as multitest
 import pandas as pd
 
+# sys.path.append("C:/Users/sling/iCloudDrive/iHeatmap")  is not needed to build the package
+from scipy import stats
 from iFun import *
 from iHeatmapTable import *
 from iHeatmapDialog import *
@@ -134,9 +138,8 @@ class MainFrame(wx.Frame):
         
         annoCols = [ x-1 for x in pars[1]] 
         
-        n = 0
         #annoColDicList =[]
-        for annoCol in annoCols:            
+        for n, annoCol in enumerate(annoCols):            
             anno = numpy.array(data)[1:, int(annoCol)]
             annoColDic = getCategoryColorDic (list(set(anno)), colsDic)
             cols = getMemberColor(anno, annoColDic)
@@ -154,13 +157,15 @@ class MainFrame(wx.Frame):
                 annoColorX = robjects.StrVector(cols)              
                 ColSideColors = base.cbind(ColSideColors , annoColorX)
                 annoColDicList = [annoColDicList, annoColDic]
-            n = n + 1
         
         print base.dim(ColSideColors)
         annoName = robjects.StrVector(numpy.array(data)[0, annoCols])
         ColSideColors.colnames = annoName
         
-        fileName = "C:/Users/sling/iCloudDrive/iHeatmap/heatmap.pdf"         
+        outputDlg = OutputDialog()
+        outPath = outputDlg.GetPath()
+        print outPath
+        fileName = outPath + "/heatmap.pdf"         
         grdevices.pdf(file = fileName )
         heatmap.heatmap3(numDataR,ColSideColors=ColSideColors,showRowDendro=False)
         grdevices.dev_off()
@@ -177,6 +182,10 @@ class MainFrame(wx.Frame):
             anno = robjects.StrVector(annoColDicList[i].keys())
             col =  robjects.StrVector(annoColDicList[i].values())
             heatmap.showLegend(legend= anno,col=col,cex=1.5, title="Annotation Legend: "+annoName[i], pch=22, lwd = robjects.NA_Integer, pt_bg=col)
+            fileName = outPath +"/heatmapLegend" + str(i) + ".pdf"
+            grdevices.pdf(file = fileName )
+            heatmap.showLegend(legend= anno,col=col,cex=1.5, title="Annotation Legend: "+annoName[i], pch=22, lwd = robjects.NA_Integer, pt_bg=col)
+            grdevices.dev_off()
 
 
 if __name__ == '__main__':

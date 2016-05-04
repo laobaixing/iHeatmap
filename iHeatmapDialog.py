@@ -54,6 +54,7 @@ class InputDialog(wx.Dialog):
             self.Destroy()
         else:
             print "Cancel"
+            self.status = False
             self.Destroy()
 
     def OnAddFile(self, event):
@@ -215,3 +216,57 @@ class DialogHeatmap ( wx.Dialog ):
     def __del__( self ):
         pass
     
+
+class OutputDialog(wx.Dialog):
+    
+    def __init__(self):
+        wx.Dialog.__init__(self, None, -1, title="Output results", size=(450, 250))
+    
+        self.startDirectory = os.getcwd()
+
+        # make sizers
+        sizerMainFrame = wx.BoxSizer(wx.VERTICAL)
+        self.FlBrwsBtnsSizer = wx.BoxSizer(wx.VERTICAL)
+        sizerBtns = wx.BoxSizer(wx.HORIZONTAL)
+
+        #  make buttons
+        self.FlBrwsBtn = filebrowse.DirBrowseButton(self, id=wx.NewId(), labelText="Output path", size=(400, -1), buttonText="Browse...", startDirectory=self.startDirectory) 
+        btnOK = wx.Button(self, wx.ID_OK, label="&OK")
+        btnCancel = wx.Button(self, wx.ID_CANCEL, label="&Cancel")
+        
+        # self.Bind(wx.EVT_BUTTON, self.OnOK, btnOK)        
+
+        #  set sizers of list file browse buttons
+        self.FlBrwsBtnsSizer.Add(wx.Size(1, 20))
+
+        self.FlBrwsBtnsSizer.Add(self.FlBrwsBtn, flag=wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, border=5)
+
+        #  set sizers of OK and Cancel buttons
+        sizerBtns.Add(wx.Size(1, 20))
+        sizerBtns.Add(btnCancel, flag=wx.ALL, border=5)
+        sizerBtns.Add(btnOK, flag=wx.ALL, border=5)
+
+        #  set sizerMainFrame
+        sizerMainFrame.Add(self.FlBrwsBtnsSizer)
+        sizerMainFrame.Add(sizerBtns)
+
+        self.SetSizer(sizerMainFrame)
+        self.Fit()
+        self.Layout()
+
+        if self.ShowModal() == wx.ID_OK:
+            print "OK"
+            self.status = True
+            self.Destroy()
+        else:
+            print "Cancel"
+            self.status = False
+            self.Destroy()
+
+    def GetPath(self):
+        if self.status:
+            return self.FlBrwsBtn.GetValue() 
+        else:
+            return None
+
+ 
