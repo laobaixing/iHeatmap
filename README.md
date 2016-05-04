@@ -10,4 +10,4 @@ Before use this program, Users need to:
 So, it is more convenience for linux user as current stage.
 
 For users who is not familiar with python. This python program has been freezed into stand-alone executables and stored in sourceforge:
-https://sourceforge.net/projects/iheatmap/?source=navbar
+https://sourceforge.net/projects/iheatmap/
