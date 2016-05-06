@@ -3,7 +3,7 @@ Help researchers to build a heatmap through an interactive way.
 
 Now use python to provide a GUI for a public R package heatmap3.
 
-Before use this program, 
+Before use this program,
 For Linux and MAC system, Users need to: 
 1) Install heatmap3 package from CRAN. 
 2) Install rpy2. 
