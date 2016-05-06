@@ -8,7 +8,7 @@ For Linux and MAC system, Users need to:
 1) Install heatmap3 package from CRAN.  
 2) Install rpy2. 
 
-For windows system, users need to;
+For windows system, users need to:  
 1) Install heatmap3 package from CRAN.  
 2) Download and Install Visual C++ 2008 Express Edition from go.microsoft.com/?linkid=7729279, if you don't have C++ compiler.  
 3) Go to pywin32 sourceforge.net and select the most recent build. http://sourceforge.net/projects/pywin32/files/pywin32/  
