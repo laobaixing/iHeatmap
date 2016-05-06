@@ -107,7 +107,7 @@ class MainFrame(wx.Frame):
         self.Close()
 
     def OnAbout(self, event):
-        wx.MessageBox("Simple GUI for heatmap\nAuthor: Shiyun Ling", "About...", wx.OK | wx.ICON_INFORMATION, self)
+        wx.MessageBox("Simple GUI for heatmap\nAuthor: iBAS", "About...", wx.OK | wx.ICON_INFORMATION, self)
 
     def OnHeatmap(self,event):
         number = self.notebook.GetListTabId().index(self.notebook.GetCurrentTabId())
