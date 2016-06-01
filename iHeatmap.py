@@ -1,25 +1,23 @@
 import os
 import wx
-import sys
-# import wx.lib.filebrowsebutton as filebrowse
 
 import numpy
 import statsmodels.stats.multitest as multitest
 import pandas as pd
 
-# sys.path.append("C:/Users/sling/iCloudDrive/iHeatmap")  is not needed to build the package
 from scipy import stats
 from iFun import *
 from iHeatmapTable import *
 from iHeatmapDialog import *
 from iHeatmapNotebook import Notebook
+from iRpy import *
 
 
 class MainFrame(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, None, -1, title= "(iHeatmap) interactive heatmap builder" ,size=(1200, 600))
         
-        ico = wx.Icon('egypt200.png', wx.BITMAP_TYPE_ANY)
+        ico = wx.Icon('pyramid3.png', wx.BITMAP_TYPE_ANY)
         self.SetIcon(ico)
         
         # set menuFile and menuBar
@@ -116,28 +114,26 @@ class MainFrame(wx.Frame):
         
         print(pars)
         
-        matStart = pars[0]-1                
+        matStart = pars[0]-1     
+        data = self.data[number]
+        numData = numpy.array(data)[1:,matStart: ].astype(float)
+        
+        # get numpy data column items
+        items = numpy.array(data)[0,matStart: ].astype(str)          
+                   
         import rpy2.robjects as robjects
         from rpy2.robjects.packages import importr
         base = importr("base")
-        heatmap = importr("heatmap3")
-        grdevices = importr("grDevices")
-        data = self.data[number]
-        numData = numpy.array(data)[1:,2: ].astype(float)
-        numData = numpy.transpose(numData)
-        items = numpy.array(data)[0,matStart: ].astype(str)  
-              
-
         from rpy2.robjects import numpy2ri        
         numpy2ri.activate()   # transfer the numpy array to matrix in R 
         
-        nr,nc = numData.shape
-        xvec = robjects.FloatVector(numData.transpose().reshape(numData.size))
-        numDataR =  robjects.r.matrix(xvec, nrow=nr, ncol=nc)                       
-        numDataR.rownames = robjects.StrVector(items) # different from R format
+        # transfer numpy data to r matrix
+        numDataR = transposeNumpyMat2R(numData)             
+        numDataR.rownames = robjects.StrVector(items) # the numData column now is the row names of R matrix, heatmap3 use this format        
         
-        annoCols = [ x-1 for x in pars[1]] 
-        
+        # get column side annotation colors
+        # get color list for legend
+        annoCols = [ x-1 for x in pars[1]]         
         #annoColDicList =[]
         for n, annoCol in enumerate(annoCols):            
             anno = numpy.array(data)[1:, int(annoCol)]
@@ -156,36 +152,19 @@ class MainFrame(wx.Frame):
             if (n>=2):
                 annoColorX = robjects.StrVector(cols)              
                 ColSideColors = base.cbind(ColSideColors , annoColorX)
-                annoColDicList = [annoColDicList, annoColDic]
-        
+                annoColDicList = [annoColDicList, annoColDic]  # for legend
         print base.dim(ColSideColors)
         annoName = robjects.StrVector(numpy.array(data)[0, annoCols])
         ColSideColors.colnames = annoName
-        
+
         outputDlg = OutputDialog()
         outPath = outputDlg.GetPath()
-        print outPath
-        fileName = outPath + "/heatmap.pdf"         
-        grdevices.pdf(file = fileName )
-        heatmap.heatmap3(numDataR,ColSideColors=ColSideColors,showRowDendro=False)
-        grdevices.dev_off()
+        print outPath        
+        fileName = outPath + "/heatmap.pdf"          
+       
+        heatmap3py(numDataR, ColSideColors, annoColDicList, fileName=fileName, outPath=outPath)
+        heatmap3py(numDataR, ColSideColors, annoColDicList)
         
-        heatmap.heatmap3(numDataR,ColSideColors=ColSideColors,showRowDendro=False)
-        
-        from rpy2.robjects.functions import SignatureTranslatedFunction
-        # explicitly translate the R argument to legal python name 
-        heatmap.showLegend = SignatureTranslatedFunction(heatmap.showLegend,
-                                           init_prm_translate = {'pt_bg': 'pt.bg'})
-        # Plot legends in another window
-        for i in range(len(annoColDicList)):
-            grdevices.dev_new()
-            anno = robjects.StrVector(annoColDicList[i].keys())
-            col =  robjects.StrVector(annoColDicList[i].values())
-            heatmap.showLegend(legend= anno,col=col,cex=1.5, title="Annotation Legend: "+annoName[i], pch=22, lwd = robjects.NA_Integer, pt_bg=col)
-            fileName = outPath +"/heatmapLegend" + str(i) + ".pdf"
-            grdevices.pdf(file = fileName )
-            heatmap.showLegend(legend= anno,col=col,cex=1.5, title="Annotation Legend: "+annoName[i], pch=22, lwd = robjects.NA_Integer, pt_bg=col)
-            grdevices.dev_off()
 
 
 if __name__ == '__main__':
